@@ -23,4 +23,6 @@ def index():
     return render_template('index.html', title="2023", data=data_array)
 
 if __name__ == "__main__":
-    app.run(debug=False, port=8080, threaded=True)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=8080)
+    # app.run(debug=False, port=8080, threaded=True)
