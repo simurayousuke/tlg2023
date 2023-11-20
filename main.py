@@ -23,4 +23,4 @@ def index():
     return render_template('index.html', title="2023", data=data_array)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8080, threaded=True)
+    app.run(debug=False, port=8080, threaded=True)
