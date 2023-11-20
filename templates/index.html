@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+<table class="table datatable">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>ランク</th>
+            <th>景品</th>
+            <th>残数</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr data-id="{{row[0]}}"><!--ID-->
+            <td>{{row[0]}}</td><!--ID-->
+            <td>
+                {% if row[1] %}
+                    {% if row[1]==3 %}
+                    <div class="label label-danger">SR</div>
+                    {% elif row[1]==2 %}
+                    <div class="label label-warning">R</div>
+                    {% else %}
+                    <div class="label label-info">C</div>
+                    {% endif %}
+                {% endif %}
+            </td><!--ランク-->
+            <td>
+                <img src="static/pic/{{row[0]}}.jpg" width="200px" height="200px" class="img-responsive"><!--画像-->
+                <h4>{{row[2]}}</h4><!--商品名-->
+            </td>
+            <td>{{row[3]}}</td><!--残数-->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+<script>
+    $('table.datatable').datatable();
+</script>
