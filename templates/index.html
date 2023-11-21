@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+
 {% block content %}
 <table class="table datatable">
     <thead>
@@ -33,9 +34,11 @@
         {% endfor %}
     </tbody>
 </table>
-
 {% endblock %}
+
+{% block js %}
 <script>
-    $('table.datatable').datatable();
     setInterval(function() {location.reload();}, 5000);
+    // $('table.datatable').datatable();
 </script>
+{% endblock %}
