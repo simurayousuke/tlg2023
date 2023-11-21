@@ -21,6 +21,13 @@ if not %errorlevel% == 0 (
     pip install unicodecsv
 ) 
 
+@rem ------------waitress------------
+pip list | findstr /C:"waitress" >nul 2>&1
+if not %errorlevel% == 0 (
+    echo Installing waitress
+    pip install waitress
+) 
+
 call csv2db.bat
 
 @REM rem ------------SQLAlchemy------------
