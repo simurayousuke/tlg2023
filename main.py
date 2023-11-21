@@ -38,4 +38,6 @@ def data():
     return jsonify([dict(row) for row in rows])
 
 if __name__ == "__main__":
-    app.run(debug=False, port=80, threaded=True)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=8080)
+    # app.run(debug=False, port=8080, threaded=True)
