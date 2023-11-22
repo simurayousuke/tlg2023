@@ -60,7 +60,7 @@ def comments():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    query = "SELECT * FROM chat WHERE id > ?"
+    query = "SELECT comment FROM chat WHERE id > ?"
     cursor.execute(query, (latest,))
     rows = cursor.fetchall()
 
@@ -70,7 +70,7 @@ def comments():
 
     conn.close()
 
-    return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[dict(row) for row in rows]})
+    return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[row[0] for row in rows]})
 
 
 @app.route('/data')
