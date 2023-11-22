@@ -72,6 +72,19 @@ def comments():
 
     return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[row[0] for row in rows]})
 
+@app.route('/latestchatid')
+def latestChatId():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query_latest = "SELECT MAX(id) AS max_id FROM chat"
+    cursor.execute(query_latest)
+    latest_result = cursor.fetchone()
+
+    conn.close()
+
+    return str(latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0)
+
 
 @app.route('/data')
 def data():
