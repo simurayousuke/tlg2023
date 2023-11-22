@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block css %}
+<style>
+    body {
+        overflow: hidden;
+    }
+
+    .span-button {
+        background-color: #3280FC;
+        color: white;
+        user-select: none;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="form-group">
+    <div class="input-group">
+        <input type="text" class="form-control" id="input-comment" placeholder="弾幕を送ってみよう～">
+        <span class="input-group-addon span-button" id="button-send">送信</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    inputBox = document.getElementById('input-comment');
+
+    function sendComment(comment) {
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ comment: comment })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    parent.noticeBottom('送信成功');
+                    inputBox.value = '';
+                } else {
+                    parent.alertBottom('送信失敗');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    document.getElementById('button-send').addEventListener('click', function () {
+        comment = inputBox.value;
+        if (comment === '') {
+            return;
+        }
+        sendComment(comment);
+    });
+
+</script>
+{% endblock %}
