@@ -1,5 +1,22 @@
 {% extends "layout.html" %}
 
+{% block css %}
+<style>
+    .image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 200px;
+        width: 200px;
+    }
+
+    .overlay-image {
+        position: absolute;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <table class="table datatable">
     <thead>
@@ -26,7 +43,12 @@
                 {% endif %}
             </td><!--ランク-->
             <td>
-                <img src="static/pic/{{row[0]}}.jpg" width="200px" height="200px" class="img-responsive"><!--画像-->
+                <div class="image-container">
+                    <img src="static/pic/{{row[0]}}.jpg" width="200px" height="200px" class="img-responsive" {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
+                    {% if row[3]<=0 %} 
+                    <img src="static/pic/soldout.png" class="overlay-image">
+                    {% endif %}
+                </div>
                 <h4>{{row[2]}}</h4><!--商品名-->
             </td>
             <td>{{row[3]}}</td><!--残数-->
@@ -42,7 +64,7 @@
     let latest = 0;
     let data = [];
     let initialized = false;
-    
+
     function update() {
         fetch('/diff?latest=' + latest)
             .then(response => {
@@ -52,7 +74,9 @@
                 return response.json();
             })
             .then(jsonData => {
-                console.log(jsonData);
+                if (jsonData.latest > latest) {
+                    location.reload();
+                }
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);

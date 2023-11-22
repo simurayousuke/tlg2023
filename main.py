@@ -64,9 +64,13 @@ def comments():
     cursor.execute(query, (latest,))
     rows = cursor.fetchall()
 
+    query_latest = "SELECT MAX(id) AS max_id FROM chat"
+    cursor.execute(query_latest)
+    latest_result = cursor.fetchone()
+
     conn.close()
 
-    return jsonify([dict(row) for row in rows])
+    return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[dict(row) for row in rows]})
 
 
 @app.route('/data')
@@ -99,9 +103,13 @@ def diff():
     cursor.execute(query, (latest,))
     rows = cursor.fetchall()
 
+    query_latest = "SELECT MAX(id) AS max_id FROM history"
+    cursor.execute(query_latest)
+    latest_result = cursor.fetchone()
+
     conn.close()
 
-    return jsonify([dict(row) for row in rows])
+    return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[dict(row) for row in rows]})
 
 @app.route('/update')
 def update():
