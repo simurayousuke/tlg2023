@@ -31,6 +31,24 @@ def table():
 
     return render_template('table.html', title="table", data=data_array)
 
+@app.route('/edit')
+def edit():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM products"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    data_array = []
+    for row in rows:
+        data_array.append(list(row))
+
+    cursor.close()
+    conn.close()
+
+    return render_template('edit.html', title="edit", data=data_array)
+
 @app.route('/chat', methods=['GET'])
 def chat():
     return render_template('chat.html', title="2023")
