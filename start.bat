@@ -28,7 +28,10 @@ if not %errorlevel% == 0 (
     pip install waitress
 ) 
 
-call csv2db.bat
+call backup_db.bat
+python csv2db.py
+python reset_crud_history.py
+@REM python reset_chat.py
 
 @REM rem ------------SQLAlchemy------------
 @REM pip list | findstr /C:"SQLAlchemy" >nul 2>&1
