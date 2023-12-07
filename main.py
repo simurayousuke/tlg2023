@@ -4,54 +4,48 @@ import sqlite3
 
 app = Flask(__name__)
 
+
 def get_db_connection():
     conn = sqlite3.connect('data.db')
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_data_array():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM products"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    data_array = []
+    for row in rows:
+        data_array.append(list(row))
+
+    cursor.close()
+    conn.close()
+
+    return data_array
+
 @app.route('/')
 def index():
     return render_template('index.html', title="2023")
 
+
 @app.route('/table')
 def table():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    return render_template('table.html', title="table", data=get_data_array())
 
-    query = "SELECT * FROM products"
-    cursor.execute(query)
-    rows = cursor.fetchall()
-
-    data_array = []
-    for row in rows:
-        data_array.append(list(row))
-
-    cursor.close()
-    conn.close()
-
-    return render_template('table.html', title="table", data=data_array)
 
 @app.route('/edit')
 def edit():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    return render_template('edit.html', title="edit", data=get_data_array())
 
-    query = "SELECT * FROM products"
-    cursor.execute(query)
-    rows = cursor.fetchall()
-
-    data_array = []
-    for row in rows:
-        data_array.append(list(row))
-
-    cursor.close()
-    conn.close()
-
-    return render_template('edit.html', title="edit", data=data_array)
 
 @app.route('/chat', methods=['GET'])
 def chat():
     return render_template('chat.html', title="2023")
+
 
 @app.route('/chat', methods=['POST'])
 def comment():
@@ -64,11 +58,12 @@ def comment():
 
     query = "INSERT INTO chat (comment) VALUES (?)"
     cursor.execute(query, (comment,))
-        
+
     conn.commit()
     conn.close()
 
     return jsonify({'result': 'success', 'message': "Comment success."})
+
 
 @app.route('/comments')
 def comments():
@@ -88,7 +83,9 @@ def comments():
 
     conn.close()
 
-    return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[row[0] for row in rows]})
+    return jsonify({"latest": latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,
+                    "data": [row[0] for row in rows]})
+
 
 @app.route('/latestchatid')
 def latestChatId():
@@ -120,7 +117,8 @@ def data():
     conn.close()
 
     latest = latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0
-    return jsonify({"latest":latest, "data":[dict(row) for row in rows]})
+    return jsonify({"latest": latest, "data": [dict(row) for row in rows]})
+
 
 @app.route('/diff')
 def diff():
@@ -140,7 +138,9 @@ def diff():
 
     conn.close()
 
-    return jsonify({"latest":latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,"data":[dict(row) for row in rows]})
+    return jsonify({"latest": latest_result['max_id'] if latest_result and latest_result['max_id'] is not None else 0,
+                    "data": [dict(row) for row in rows]})
+
 
 @app.route('/update')
 def update():
@@ -163,7 +163,7 @@ def update():
 
         history_query = "INSERT INTO history (target, amount) VALUES (?, ?)"
         cursor.execute(history_query, (id, amount))
-        
+
         conn.commit()
 
         return jsonify({'result': 'success', 'message': "Update success."})
@@ -174,7 +174,9 @@ def update():
     finally:
         conn.close()
 
+
 if __name__ == "__main__":
     from waitress import serve
+
     serve(app, host="0.0.0.0", port=8080)
     # app.run(debug=False, port=8080, threaded=True)
