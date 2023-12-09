@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block css %}
+    <style>
+        .gacha-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .gacha {
+            display: flex;
+            flex-wrap: wrap;
+            height: 100px;
+            width: 70px;
+            border: black solid 1px;
+            background-color: #3280FC;
+            margin: 20px;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .hide{
+            display: none;
+        }
+    </style>
+    <script>
+        let reverted =false;
+        function noticeBottom(message) {
+            $.zui.messager.show(message, {placement: 'bottom', time: 1500, type: 'success', close: false});
+        }
+        function revert(button){
+            if(reverted)
+                return;
+            reverted=true;
+            let span=button.getElementsByTagName('span')[0];
+            span.className='';
+            (new $.zui.ModalTrigger({
+                title:'おめでとうございます！',
+                custom: span.innerText
+
+            })).show();
+            //alert(span.innerText);
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="gacha-container">
+        {% for value in data %}
+            <button class="gacha" onclick="revert(this);">
+                <span class="hide">{{ value }}等賞</span>
+            </button>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+
+    </script>
+{% endblock %}

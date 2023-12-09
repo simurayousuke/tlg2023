@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block css %}
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+    <script>
+        function noticeBottom(message) {
+            $.zui.messager.show(message, {placement: 'top', time: 1500, type: 'success', close: false});
+        }
+
+        function alertBottom(message) {
+            $.zui.messager.show(message, {placement: 'top', time: 1500, type: 'danger', close: false});
+        }
+
+        function sub() {
+            let button = document.getElementsByTagName('button')[0];
+            button.setAttribute('disabled', 'disabled');
+            let id = document.getElementById("input-product").value;
+            fetch(`/4f897ded2b844565915fee965dc45370?id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        noticeBottom('送信成功');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000)
+                    } else {
+                        alertBottom(data.message);
+                        button.removeAttribute('disabled');
+                    }
+                })
+                .catch(error => {
+                    alertBottom('送信失敗');
+                    button.removeAttribute('disabled');
+                });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <a href="/92c7264931784fbc9d82cd9f7d5faae4" style="float:right">編集ページを開く</a>
+        <div class="form-group">
+            <label for="input-product">景品</label>
+            <div>
+                <select class="form-control" id="input-product">
+                    {% for row in data %}
+                        {% if row[1]==4 %}
+                            {% set rank = 'UR' %}
+                        {% elif row[1]==3 %}
+                            {% set rank = 'SR' %}
+                        {% elif row[1]==2 %}
+                            {% set rank = 'SP' %}
+                        {% else %}
+                            {% set rank = 'R' %}
+                        {% endif %}
+                        <option value="{{ row[0] }}">[{{ row[0] }}][{{ rank }}]{{ row[2] }}({{ row[3] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="sub()">数を1つ減らす</button>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+
+    </script>
+{% endblock %}

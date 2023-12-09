@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import webbrowser
 import sqlite3
+import random
 
 app = Flask(__name__)
 
@@ -9,6 +10,7 @@ def get_db_connection():
     conn = sqlite3.connect('data.db')
     conn.row_factory = sqlite3.Row
     return conn
+
 
 def get_data_array():
     conn = get_db_connection()
@@ -27,6 +29,7 @@ def get_data_array():
 
     return data_array
 
+
 @app.route('/')
 def index():
     return render_template('index.html', title="2023")
@@ -37,7 +40,7 @@ def table():
     return render_template('table.html', title="table", data=get_data_array())
 
 
-@app.route('/edit')
+@app.route('/92c7264931784fbc9d82cd9f7d5faae4')
 def edit():
     return render_template('edit.html', title="edit", data=get_data_array())
 
@@ -142,7 +145,7 @@ def diff():
                     "data": [dict(row) for row in rows]})
 
 
-@app.route('/update')
+@app.route('/3a26e808a4114092842e131456a1ec00')
 def update():
     id = request.args.get('id', type=int)
     if id is None:
@@ -160,6 +163,74 @@ def update():
 
         if cursor.rowcount == 0:
             return jsonify({'result': 'fail', 'message': "No record found with the provided id."}), 404
+
+        history_query = "INSERT INTO history (target, amount) VALUES (?, ?)"
+        cursor.execute(history_query, (id, amount))
+
+        conn.commit()
+
+        return jsonify({'result': 'success', 'message': "Update success."})
+
+    except Exception as e:
+        return jsonify({'result': 'fail', 'message': str(e)}), 500
+
+    finally:
+        conn.close()
+
+
+@app.route('/gacha')
+def gacha():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "SELECT rank, SUM(amount) FROM products group by rank"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    data_array = []
+    for row in rows:
+        value = 0
+        if row[0] == 4:
+            value = 1
+        elif row[0] == 2 or row[0] == 3:
+            value = 2
+        elif row[0] == 1:
+            value = 3
+        for _ in range(row[1]):
+            data_array.append(value)
+
+    cursor.close()
+    conn.close()
+
+    random.shuffle(data_array)
+
+    return render_template('gacha.html', title="gacha", data=data_array)
+
+
+@app.route('/fdc97e7318264f11bdf16825e2de7ff9')
+def stuff():
+    return render_template('stuff.html', title="stuff", data=get_data_array())
+
+@app.route('/4f897ded2b844565915fee965dc45370')
+def sub():
+    id = request.args.get('id', type=int)
+    if id is None:
+        return "Please provide a 'id' query parameter.", 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query_amount = "SELECT amount FROM products WHERE id = ?"
+        cursor.execute(query_amount, (id,))
+        amount_result = cursor.fetchone()
+        amount = amount_result['amount'] if amount_result and amount_result['amount'] is not None else 0
+
+        if amount <= 0:
+            return jsonify({'result': 'fail', 'message': "No record found or amount <= 0."}), 400
+
+        query = "UPDATE products SET amount = amount - 1 WHERE id = ?"
+        cursor.execute(query, (id,))
 
         history_query = "INSERT INTO history (target, amount) VALUES (?, ?)"
         cursor.execute(history_query, (id, amount))
