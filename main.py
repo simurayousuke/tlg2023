@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import webbrowser
 import sqlite3
 import random
+import requests
 
 app = Flask(__name__)
 
@@ -28,6 +29,18 @@ def get_data_array():
     conn.close()
 
     return data_array
+
+
+def get_rank_str(rank):
+    if rank == 4:
+        return "UR"
+    if rank == 3:
+        return "SR"
+    if rank == 2:
+        return "SP"
+    if rank == 1:
+        return "R"
+    return "Unknown"
 
 
 @app.route('/')
@@ -211,6 +224,7 @@ def gacha():
 def stuff():
     return render_template('stuff.html', title="stuff", data=get_data_array())
 
+
 @app.route('/4f897ded2b844565915fee965dc45370')
 def sub():
     id = request.args.get('id', type=int)
@@ -221,7 +235,7 @@ def sub():
     cursor = conn.cursor()
 
     try:
-        query_amount = "SELECT amount FROM products WHERE id = ?"
+        query_amount = "SELECT id,rank,name,amount FROM products WHERE id = ?"
         cursor.execute(query_amount, (id,))
         amount_result = cursor.fetchone()
         amount = amount_result['amount'] if amount_result and amount_result['amount'] is not None else 0
@@ -236,6 +250,18 @@ def sub():
         cursor.execute(history_query, (id, amount))
 
         conn.commit()
+
+        slack_url = "https://hooks.slack.com/triggers/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"
+        payload = {
+            "name": amount_result['name'],
+            "id": amount_result['id'],
+            "rank": get_rank_str(amount_result['rank']),
+            "amount": amount - 1
+        }
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(slack_url, json=payload, headers=headers)
 
         return jsonify({'result': 'success', 'message': "Update success."})
 
