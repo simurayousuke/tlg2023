@@ -1,116 +1,153 @@
 {% extends "layout.html" %}
 
 {% block css %}
-<style>
-    .image-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        height: 200px;
-        width: 200px;
-    }
+    <style>
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 200px;
+            width: 200px;
+        }
 
-    .overlay-image {
-        position: absolute;
-    }
-</style>
+        .overlay-image {
+            position: absolute;
+        }
+
+        .announce {
+            display: block;
+            padding: 9.5px;
+            margin: 10px;
+            font-size: 12px;
+            line-height: 1.38461538;
+            color: #333;
+            word-break: break-all;
+            word-wrap: break-word;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<table class="table datatable">
-    <thead>
+    <div class="announce">
+        <ul>
+            <li>皆さんはトイロ君が壊したクッキーの中から出てきた数字がビンゴカードに書かれていたら開けることができます
+            </li>
+            <li>我こそはトイロ君を操作したいという方は、正面向かって左奥のPCスペース (or 司会付近のBluetoothマウス)
+                のところまでお越しください
+            </li>
+            <li>ピンゴになった方は、景品台の方までお越しください</li>
+            <li>スタッフが確認ののち、iPadにてレアリティ抽選を行っていただきます</li>
+            <li>レアリティ区分は以下の通りです
+                <ul>
+                    <li>1等賞:UR、SR、SP、Rからお選びいただけます</li>
+                    <li>2等賞:SR、SP、Rからお選びいただけます</li>
+                    <li>3等賞:SP、Rからお選びいただけます</li>
+                    <li>欲しものがどうしてもない場合は、steam プリペイドカードと交換いただけます (残数に限りあり)</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <table class="table datatable">
+        <thead>
         <tr>
             <th>#</th>
             <th>ランク</th>
             <th>景品</th>
             <th>残数</th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
         {% for row in data %}
-        <tr data-id="{{row[0]}}"><!--ID-->
-            <td>{{row[0]}}</td><!--ID-->
-            <td>
-                {% if row[1] %}
-                {% if row[1]==4 %}
-                <div class="label label-danger">UR</div>
-                {% elif row[1]==3 %}
-                <div class="label label-warning">SR</div>
-                {% elif row[1]==2 %}
-                <div class="label label-warning">SP</div>
-                {% else %}
-                <div class="label label-info">R</div>
-                {% endif %}
-                {% endif %}
-            </td><!--ランク-->
-            <td>
-                <div class="image-container">
-                    <img src="static/pic/{{row[0]}}.jpg" width="200px" height="200px" class="img-responsive" {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
-                    {% if row[3]<=0 %} 
-                    <img src="static/pic/soldout.png" class="overlay-image">
+            <tr data-id="{{ row[0] }}"><!--ID-->
+                <td>{{ row[0] }}</td><!--ID-->
+                <td>
+                    {% if row[1] %}
+                        {% if row[1]==4 %}
+                            <div class="label label-danger">UR</div>
+                        {% elif row[1]==3 %}
+                            <div class="label label-warning">SR</div>
+                        {% elif row[1]==2 %}
+                            <div class="label label-warning">SP</div>
+                        {% else %}
+                            <div class="label label-info">R</div>
+                        {% endif %}
                     {% endif %}
-                </div>
-                <h4>{{row[2]}}</h4><!--商品名-->
-            </td>
-            <td>{{row[3]}}</td><!--残数-->
-        </tr>
+                </td><!--ランク-->
+                <td>
+                    <div class="image-container">
+                        <img src="static/pic/{{ row[0] }}.jpg" width="200px" height="200px" class="img-responsive"
+                                {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
+                        {% if row[3]<=0 %}
+                            <img src="static/pic/soldout.png" class="overlay-image">
+                        {% endif %}
+                    </div>
+                    <h4>{{ row[2] }}</h4><!--商品名-->
+                </td>
+                <td>{{ row[3] }}</td><!--残数-->
+            </tr>
         {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
 {% endblock %}
 
 {% block js %}
-<script>
-    // $('table.datatable').datatable();
-    let latest = 0;
-    let data = [];
-    let initialized = false;
+    <script>
+        // $('table.datatable').datatable();
+        let latest = 0;
+        let data = [];
+        let initialized = false;
 
-    function update() {
-        fetch('/diff?latest=' + latest)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(jsonData => {
-                if (jsonData.latest > latest) {
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }
+        function update() {
+            fetch('/diff?latest=' + latest)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(jsonData => {
+                    if (jsonData.latest > latest) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
 
-    function init() {
-        fetch('/data')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(jsonData => {
-                data = jsonData.data;
-                latest = jsonData.latest;
+        function init() {
+            fetch('/data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(jsonData => {
+                    data = jsonData.data;
+                    latest = jsonData.latest;
 
-                console.log(data);
-                console.log(latest);
+                    console.log(data);
+                    console.log(latest);
 
-                if (!initialized) {
-                    initialized = true;
-                    setInterval(function () { update(); }, 5000);
-                }
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }
+                    if (!initialized) {
+                        initialized = true;
+                        setInterval(function () {
+                            update();
+                        }, 5000);
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
 
-    init();
+        init();
 
-</script>
+    </script>
 {% endblock %}
