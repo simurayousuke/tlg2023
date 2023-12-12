@@ -17,7 +17,8 @@ create_table_query = """
         id INTEGER PRIMARY KEY,
         rank INTEGER,
         name TEXT,
-        amount INTEGER
+        amount INTEGER,
+        isShow INTEGER default 0
     );
 """
 cursor.execute(create_table_query)
@@ -36,7 +37,7 @@ with open(csv_file_path, 'rb') as csv_file:  # Open in binary mode
     for row in csv_reader:
         row[1] = convert_rank(row[1])  # Convert rank text to number
         row = row[:4]
-        print row
+        print(row)
         cursor.execute("INSERT INTO products (id, rank, name, amount) VALUES (?, ?, ?, ?);", row)
 
 # Commit changes and close the connection

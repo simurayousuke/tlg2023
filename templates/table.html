@@ -62,11 +62,23 @@
         </tr>
         </thead>
         <tbody>
+        {% if not allShown %}
+            <tr data-id="0">
+            <td>0</td>
+            <td>
+                <div class="label label-danger">?</div>
+            </td>
+            <td>
+                <h4>公開されるまでもうしばらくお待ちください。</h4>
+            </td>
+            <td>?</td>
+        {% endif %}
+        <!-- Schema: id, rank, name, amount, isShow -->
         {% for row in data %}
-            <tr data-id="{{ row[0] }}"><!--ID-->
-                <td>{{ row[0] }}</td><!--ID-->
-                <td>
-                    {% if row[1] %}
+            {% if row[4] != 0 %}
+                <tr data-id="{{ row[0] }}"><!--ID-->
+                    <td>{{ row[0] }}</td><!--ID-->
+                    <td>
                         {% if row[1]==4 %}
                             <div class="label label-danger">UR</div>
                         {% elif row[1]==3 %}
@@ -76,20 +88,20 @@
                         {% else %}
                             <div class="label label-info">R</div>
                         {% endif %}
-                    {% endif %}
-                </td><!--ランク-->
-                <td>
-                    <div class="image-container">
-                        <img src="static/pic/{{ row[0] }}.jpg" width="200px" height="200px" class="img-responsive"
-                                {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
-                        {% if row[3]<=0 %}
-                            <img src="static/pic/soldout.png" class="overlay-image">
-                        {% endif %}
-                    </div>
-                    <h4>{{ row[2] }}</h4><!--商品名-->
-                </td>
-                <td>{{ row[3] }}</td><!--残数-->
-            </tr>
+                    </td><!--ランク-->
+                    <td>
+                        <div class="image-container">
+                            <img src="static/pic/{{ row[0] }}.jpg" width="200px" height="200px" class="img-responsive"
+                                    {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
+                            {% if row[3]<=0 %}
+                                <img src="static/pic/soldout.png" class="overlay-image">
+                            {% endif %}
+                        </div>
+                        <h4>{{ row[2] }}</h4><!--商品名-->
+                    </td>
+                    <td>{{ row[3] }}</td><!--残数-->
+                </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>

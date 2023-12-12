@@ -31,6 +31,24 @@ def get_data_array():
     return data_array
 
 
+def is_all_shown():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    ret = False
+
+    query = "SELECT * FROM products where isShow=0"
+    cursor.execute(query)
+
+    if cursor.fetchone() is None:
+        ret = True
+
+    cursor.close()
+    conn.close()
+
+    return ret
+
+
 def get_rank_str(rank):
     if rank == 4:
         return "UR"
@@ -43,6 +61,22 @@ def get_rank_str(rank):
     return "Unknown"
 
 
+def get_amount_by_id(id):
+    ret = 0
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "SELECT amount FROM products WHERE id = ?"
+    cursor.execute(query, (id,))
+    result = cursor.fetchone()
+    if result is not None:
+        ret = result['amount']
+
+    conn.close()
+
+    return ret
+
+
 @app.route('/')
 def index():
     return render_template('index.html', title="2023")
@@ -50,12 +84,13 @@ def index():
 
 @app.route('/table')
 def table():
-    return render_template('table.html', title="table", data=get_data_array())
+    return render_template('table.html', title="table", data=get_data_array(), allShown=is_all_shown())
 
 
 @app.route('/92c7264931784fbc9d82cd9f7d5faae4')
 def edit():
-    return render_template('edit.html', title="edit", data=get_data_array())
+    data_array = get_data_array()
+    return render_template('edit.html', title="edit", data=data_array, data_size=len(data_array))
 
 
 @app.route('/chat', methods=['GET'])
@@ -191,6 +226,39 @@ def update():
         conn.close()
 
 
+@app.route('/9c1473fbc1c041e7999d3874ce36a9bf')
+def set_show():
+    id = request.args.get('id', type=int)
+    if id is None:
+        return "Please provide a 'id' query parameter.", 400
+    show = request.args.get('show', type=int)
+    if show is None:
+        return "Please provide a 'show' query parameter.", 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = "UPDATE products SET isShow = ? WHERE id = ?"
+        cursor.execute(query, (show, id))
+
+        if cursor.rowcount == 0:
+            return jsonify({'result': 'fail', 'message': "No record found with the provided id."}), 404
+
+        history_query = "INSERT INTO history (target, amount) VALUES (?, ?)"
+        cursor.execute(history_query, (id, get_amount_by_id(id)))
+
+        conn.commit()
+
+        return jsonify({'result': 'success', 'message': "Update success."})
+
+    except Exception as e:
+        return jsonify({'result': 'fail', 'message': str(e)}), 500
+
+    finally:
+        conn.close()
+
+
 @app.route('/gacha')
 def gacha():
     conn = get_db_connection()
@@ -205,9 +273,9 @@ def gacha():
         value = 0
         if row[0] == 4:
             value = 1
-        elif row[0] == 2 or row[0] == 3:
+        elif row[0] == 3:
             value = 2
-        elif row[0] == 1:
+        elif row[0] == 2 or row[0] == 1:
             value = 3
         for _ in range(row[1]):
             data_array.append(value)
@@ -216,6 +284,12 @@ def gacha():
     conn.close()
 
     random.shuffle(data_array)
+
+    # Print the total amount of 1, 2, 3 in data_array
+    total_one = data_array.count(1)
+    total_two = data_array.count(2)
+    total_three = data_array.count(3)
+    print([total_one, total_two, total_three])
 
     return render_template('gacha.html', title="gacha", data=data_array)
 

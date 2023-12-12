@@ -1,77 +1,118 @@
 {% extends "layout.html" %}
 
 {% block css %}
-<style>
-    .image-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        height: 200px;
-        width: 200px;
-    }
+    <style>
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 200px;
+            width: 200px;
+        }
 
-    .overlay-image {
-        position: absolute;
-    }
-</style>
-<script>
-    function edit(id){
-        let value=document.getElementById("edit-"+id);
+        .overlay-image {
+            position: absolute;
+        }
+    </style>
+    <script>
+        function edit(id) {
+            let value = document.getElementById("edit-" + id);
 
-        fetch(`/3a26e808a4114092842e131456a1ec00?id=${id}&amount=${value.value}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === 'success') {
-                            location.reload();
+            fetch(`/3a26e808a4114092842e131456a1ec00?id=${id}&amount=${value.value}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        location.reload();
                     } else {
                         alert(data.message);
                     }
-            })
-            .catch(error => alert(error));
-    }
-</script>
+                })
+                .catch(error => alert(error));
+        }
+
+        function setShow(id, show) {
+            fetch(`/9c1473fbc1c041e7999d3874ce36a9bf?id=${id}&show=${show}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => alert(error));
+        }
+
+        function setShowForAll(show) {
+            for (let id = 1; id <= {{ data_size }}; id++) {
+                fetch(`/9c1473fbc1c041e7999d3874ce36a9bf?id=${id}&show=${show}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        //location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => alert(error));
+            }
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
-<table class="table datatable">
-    <thead>
+    <button onclick="setShowForAll(1)">全公開</button>
+    <button onclick="setShowForAll(0)">全非公開</button>
+    <button onclick="location.reload()">リロード</button>
+    <table class="table datatable">
+        <thead>
         <tr>
             <th>#</th>
             <th>ランク</th>
             <th>景品</th>
             <th>残数</th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
         {% for row in data %}
-        <tr data-id="{{row[0]}}"><!--ID-->
-            <td>{{row[0]}}</td><!--ID-->
-            <td>
-                {% if row[1] %}
-                {% if row[1]==3 %}
-                <div class="label label-danger">UR</div>
-                {% elif row[1]==2 %}
-                <div class="label label-warning">SR</div>
-                {% else %}
-                <div class="label label-info">R</div>
-                {% endif %}
-                {% endif %}
-            </td><!--ランク-->
-            <td>
-                <div class="image-container">
-                    <img src="static/pic/{{row[0]}}.jpg" width="200px" height="200px" class="img-responsive" {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
-                    {% if row[3]<=0 %} 
-                    <img src="static/pic/soldout.png" class="overlay-image">
+            <tr data-id="{{ row[0] }}"><!--ID-->
+                <td>{{ row[0] }}</td><!--ID-->
+                <td>
+                    {% if row[1] %}
+                        {% if row[1]==4 %}
+                            <div class="label label-danger">UR</div>
+                        {% elif row[1]==3 %}
+                            <div class="label label-warning">SR</div>
+                        {% elif row[1]==2 %}
+                            <div class="label label-warning">SP</div>
+                        {% else %}
+                            <div class="label label-info">R</div>
+                        {% endif %}
                     {% endif %}
-                </div>
-                <h4>{{row[2]}}</h4><!--商品名-->
-            </td>
-            <td><input type="number" id="edit-{{row[0]}}" value="{{row[3]}}"/><button id="send-{{row[0]}}" onclick="javascript:edit({{row[0]}});">Send</button></td><!--残数-->
-        </tr>
+                </td><!--ランク-->
+                <td>
+                    <div class="image-container">
+                        <img src="static/pic/{{ row[0] }}.jpg" width="200px" height="200px" class="img-responsive"
+                                {% if row[3]<=0 %} style="filter: grayscale(100%);" {% endif %}><!--画像-->
+                        {% if row[3]<=0 %}
+                            <img src="static/pic/soldout.png" class="overlay-image">
+                        {% endif %}
+                    </div>
+                    <h4>{{ row[2] }}</h4><!--商品名-->
+                </td>
+                <td>
+                    <input type="number" id="edit-{{ row[0] }}" value="{{ row[3] }}"/>
+                    <button id="send-{{ row[0] }}" onclick="edit({{ row[0] }});">Send</button>
+                    <br>
+                    <span>公開状態：{% if row[4] == 0 %}未公開 {% else %}公開{% endif %}</span>
+                    <button onclick="setShow({{ row[0] }},1 )">公開する</button>
+                    <button onclick="setShow({{ row[0] }},0 )">非公開する</button>
+                </td><!--残数-->
+            </tr>
         {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
 {% endblock %}
 
 {% block js %}
