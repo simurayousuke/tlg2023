@@ -26,6 +26,11 @@
 
         span{
             color: black;
+            font-size: 26px;
+        }
+
+        .reverted{
+            background-color: white !important;
         }
     </style>
     <script>
@@ -41,6 +46,7 @@
             reverted = true;
             let span = button.getElementsByTagName('span')[0];
             span.className = '';
+            button.className += ' reverted';
             (new $.zui.ModalTrigger({
                 title: 'おめでとうございます！',
                 custom: span.innerText
@@ -55,7 +61,7 @@
     <div class="gacha-container">
         {% for value in data %}
             <button class="gacha" onclick="revert(this);">
-                <span class="hide">{{ value }}等賞</span>
+                <span class="hide"><b>{{ value }}等賞</b></span>
             </button>
         {% endfor %}
     </div>
