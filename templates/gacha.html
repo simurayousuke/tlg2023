@@ -23,12 +23,6 @@
         .hide {
             display: none;
         }
-
-        .fix {
-            position: absolute;
-            top: 90%;
-            left: 90%;
-        }
     </style>
     <script>
         let reverted = false;
@@ -61,7 +55,6 @@
             </button>
         {% endfor %}
     </div>
-    <button class="fix" onclick="location.reload()">リロード</button>
 {% endblock %}
 
 {% block js %}
