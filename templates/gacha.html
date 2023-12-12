@@ -11,8 +11,8 @@
         .gacha {
             display: flex;
             flex-wrap: wrap;
-            height: 100px;
-            width: 70px;
+            height: 200px;
+            width: 140px;
             border: black solid 1px;
             background-color: #3280FC;
             margin: 20px;
@@ -20,23 +20,31 @@
             align-content: center;
         }
 
-        .hide{
+        .hide {
             display: none;
+        }
+
+        .fix {
+            position: absolute;
+            top: 90%;
+            left: 90%;
         }
     </style>
     <script>
-        let reverted =false;
+        let reverted = false;
+
         function noticeBottom(message) {
             $.zui.messager.show(message, {placement: 'bottom', time: 1500, type: 'success', close: false});
         }
-        function revert(button){
-            if(reverted)
+
+        function revert(button) {
+            if (reverted)
                 return;
-            reverted=true;
-            let span=button.getElementsByTagName('span')[0];
-            span.className='';
+            reverted = true;
+            let span = button.getElementsByTagName('span')[0];
+            span.className = '';
             (new $.zui.ModalTrigger({
-                title:'おめでとうございます！',
+                title: 'おめでとうございます！',
                 custom: span.innerText
 
             })).show();
@@ -53,6 +61,7 @@
             </button>
         {% endfor %}
     </div>
+    <button class="fix" onclick="location.reload()">リロード</button>
 {% endblock %}
 
 {% block js %}

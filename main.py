@@ -286,10 +286,10 @@ def gacha():
     random.shuffle(data_array)
 
     # Print the total amount of 1, 2, 3 in data_array
-    total_one = data_array.count(1)
-    total_two = data_array.count(2)
-    total_three = data_array.count(3)
-    print([total_one, total_two, total_three])
+    # total_one = data_array.count(1)
+    # total_two = data_array.count(2)
+    # total_three = data_array.count(3)
+    # print([total_one, total_two, total_three])
 
     return render_template('gacha.html', title="gacha", data=data_array)
 
